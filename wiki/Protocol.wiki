@@ -6,5 +6,6 @@ This project offers RESTful API. The data format is JSON.
 
 But CSV data format downloading  is also supported.
 
-
 = Details =
+
+https://docs.google.com/present/edit?id=0Ad3729ke2xCFZGdqMzgzdmtfMTk4Zm12d2Y1Y2Q&hl=ja
