@@ -2,22 +2,16 @@ package com.appspot.geigerapi;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.servlet.http.*;
 
 @SuppressWarnings("serial")
 public class GeigerapiServlet extends HttpServlet {
-	private static final DateFormat df = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 //		doPost(req,resp);
@@ -33,7 +27,7 @@ public class GeigerapiServlet extends HttpServlet {
 		resp.setContentType("text/plain; charset=UTF-8");
 		PrintWriter writer = resp.getWriter();
 		for(GeigerData geigerData:dataList){
-			String datetimeStr = df.format(geigerData.getDatetime());
+			String datetimeStr = GeigerData.DATE_FORMAT.format(geigerData.getDatetime());
 			String label = geigerData.getLabel();
 			String type = Integer.toString(geigerData.getValuetype());
 			String latStr = Double.toString(geigerData.getLat());
@@ -49,7 +43,7 @@ public class GeigerapiServlet extends HttpServlet {
 		
 		Date datetime = new Date();
 		try {
-			datetime = df.parse(req.getParameter("datetime"));
+			datetime = GeigerData.DATE_FORMAT.parse(req.getParameter("datetime"));
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
