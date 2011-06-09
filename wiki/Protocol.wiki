@@ -6,6 +6,22 @@ This project offers RESTful API. The data format is JSON.
 
 But CSV data format downloading  is also supported.
 
-= Details =
+= Rest Details =
+== JSON ==
+|| || Method || Other Requirement ||
+|| Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and JSON Format Reauest Body||
+|| Read || GET  /rest/{resource}/{data group}.json || - ||
+|| Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and JSON Format Reauest Body||
+|| Delete || PUT  /rest/{resource}/{data group}/{id}.json || - ||
+
+== CSV ==
+
+|| || Method || Other Requirement ||
+|| Create || POST /rest/{resource}/{data group}.csv || Body query Variables||
+|| Read || GET  /rest/{resource}/{data group}.csv || - ||
+|| Update || PUT  /rest/{resource}/{data group}/{id}.csv || Body query Variables||
+|| Delete || PUT  /rest/{resource}/{data group}/{id}.json || - ||
+
+= Reference =
 
 https://docs.google.com/present/edit?id=0Ad3729ke2xCFZGdqMzgzdmtfMTk4Zm12d2Y1Y2Q&hl=ja
