@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class GeigerData {
+public class Radiation {
 		public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
 	
 		@PrimaryKey
@@ -38,11 +38,11 @@ public class GeigerData {
 		@Persistent
 		private double lon;
 		
-		public GeigerData(){
+		public Radiation(){
 			this(new Date(),"",0,0.0d,0.0d,0.0d);
 		}
 		
-		public GeigerData(Date datetime, String label, int valuetype,
+		public Radiation(Date datetime, String label, int valuetype,
 				double radiovalue, double latitude, double longtitude) {
 			super();
 			this.datetime = datetime;
