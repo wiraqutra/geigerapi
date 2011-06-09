@@ -11,19 +11,26 @@ import java.util.List;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 import javax.servlet.http.*;
 
 @SuppressWarnings("serial")
 public class GeigerapiServlet extends HttpServlet {
 	private static final DateFormat df = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-	
+	private static String select_query = "select from " + GeigerData.class.getName();
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 //		doPost(req,resp);
 		
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		String query = "select from " + GeigerData.class.getName();
-		List<GeigerData> dataList = (List<GeigerData>)pm.newQuery(query).execute();
+		Query query = pm.newQuery(GeigerData.class);
+		String order = req.getParameter("order") == null ? "datetime" : req.getParameter("order");
+		query.setOrdering(order);
+		pm.newQuery(GeigerData.class);
+		
+		@SuppressWarnings("unchecked")
+		List<GeigerData> dataList = (List<GeigerData>)query.execute();
 		
 		resp.setContentType("text/plain; charset=UTF-8");
 		PrintWriter writer = resp.getWriter();
