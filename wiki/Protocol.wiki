@@ -17,9 +17,9 @@ But CSV data format downloading  is also supported.
 == CSV ==
 
 || || Method || Other Requirement ||
-|| Create || POST /rest/{resource}/{data group}.csv || Request Header "Content-Type text/plain" and Request Body(query string)||
+|| Create || POST /rest/{resource}/{data group}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
 || Read || GET  /rest/{resource}/{data group}.csv || - ||
-|| Update || PUT  /rest/{resource}/{data group}/{id}.csv || Request Header "Content-Type text/plain" and Request Body(query string)||
+|| Update || PUT  /rest/{resource}/{data group}/{id}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
 || Delete || PUT  /rest/{resource}/{data group}/{id}.json || - ||
 
 = Reference =
