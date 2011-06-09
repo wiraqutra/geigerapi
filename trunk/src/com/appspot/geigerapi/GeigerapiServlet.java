@@ -17,7 +17,6 @@ import javax.servlet.http.*;
 @SuppressWarnings("serial")
 public class GeigerapiServlet extends HttpServlet {
 	private static final DateFormat df = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-	private static String select_query = "select from " + GeigerData.class.getName();
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -27,7 +26,6 @@ public class GeigerapiServlet extends HttpServlet {
 		Query query = pm.newQuery(GeigerData.class);
 		String order = req.getParameter("order") == null ? "datetime" : req.getParameter("order");
 		query.setOrdering(order);
-		pm.newQuery(GeigerData.class);
 		
 		@SuppressWarnings("unchecked")
 		List<GeigerData> dataList = (List<GeigerData>)query.execute();
