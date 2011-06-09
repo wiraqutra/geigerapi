@@ -12,15 +12,15 @@ But CSV data format downloading  is also supported.
 || Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Added One Record ||
 || Read || GET  /rest/{resource}/{data group}.json || - || All Records ||
 || Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Updated One Record ||
-|| Delete || PUT  /rest/{resource}/{data group}/{id}.json || - || Deleted One Record ||
+|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || Deleted One Record ||
 
 == CSV ==
 
 || || Method || Other Requirement ||
 || Create || POST /rest/{resource}/{data group}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
-|| Read || GET  /rest/{resource}/{data group}.csv || - ||
-|| Update || PUT  /rest/{resource}/{data group}/{id}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
-|| Delete || PUT  /rest/{resource}/{data group}/{id}.csv || - ||
+|| Read || GET /rest/{resource}/{data group}.csv || - ||
+|| Update || PUT /rest/{resource}/{data group}/{id}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
+|| Delete || DELETE /rest/{resource}/{data group}/{id}.csv || - ||
 
 = Reference =
 
