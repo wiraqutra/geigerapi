@@ -8,11 +8,12 @@ But CSV data format downloading  is also supported.
 
 = Rest Details =
 == JSON ==
-|| || Method || Other Requirement || Response ||
-|| Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Added one ||
-|| Read || GET  /rest/{resource}/{data group}.json || - || All Records ||
-|| Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Updated one ||
-|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || Deleted one ||
+|| || Method || Other Requirement || Response Code || Response Body ||
+|| Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| 201 _(created)_ *or* 304 _(duplicated data found)_ *or* 401 _(unauthorized)_|| Created One ||
+|| Read All || GET  /rest/{resource}/{data group}.json || - || 200 || All Records ||
+|| Read One || GET  /rest/{resource}/{data group}/{id}.json || - || 200 _(successfull)_ *or* 404 _(id not found)_ || One Record ||
+|| Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and Request Body(JSON Format) || 201 _(changed)_ *or* 304 _(all data is same)_ *or* 404 _(id not found)_ *or* 401 _(unauthorized)_ *or* 403 _(not owned)_|| Updated one ||
+|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || 200 _(deleted)_ *or* _(id not found)_ *or* 401 _(unauthorized)_ *or* 403 _(not owned)_|| Deleted one ||
 
 == CSV ==
 
