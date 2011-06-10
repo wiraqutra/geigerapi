@@ -1,5 +1,6 @@
 package com.appspot.geigerapi.resource;
 
+import java.net.URI;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -24,6 +26,7 @@ import javax.xml.bind.JAXBElement;
 
 import com.appspot.geigerapi.PMF;
 import com.appspot.geigerapi.Radiation;
+import com.appspot.geigerapi.auth.Authorization;
 import com.sun.jersey.api.NotFoundException;
 
 @Path("/radiation")
@@ -64,74 +67,52 @@ public final class RadiationResource {
 		query.setOrdering(order);
 		return (List<Radiation>)query.execute();
 	}
+	
+	@GET
+	@Path("min/{id}.json")
+	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+	public Radiation listOneByJson(@PathParam("id") Long id){
+		return getOne(PMF.get().getPersistenceManager(),id);
+	}
+
+	@GET
+	@Path("min/{id}.csv")
+	@Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
+	public String listOneByCsv(@PathParam("id") Long id) {
+		StringBuffer buffer = new StringBuffer();
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		appendRadiationToStringBuffer(buffer, getOne(pm,id));
+		return buffer.toString();
+	}
+
 
 	@POST
 	@Path("min.json")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
-	public Radiation addJsonRadiation(JAXBElement<Radiation> jaxbData){
+	public Response addJsonRadiation(JAXBElement<Radiation> jaxbData){
+		checkLoggedIn();
 		Radiation radiation = jaxbData.getValue();
 		saveRadiation(radiation);
-		return radiation;
-	}
-
-// XXX This method is not working. The data acquisition from request body was failed.
-//
-//	@POST
-//	@Path("min.csv")
-//	@Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
-//	@Transactional
-//	public String addCsvRadiation(){
-//		MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
-//		Date datetime = new Date();
-//		try {
-//			datetime = Radiation.DATE_FORMAT.parse(params.getFirst("datetime"));
-//		} catch (ParseException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		String label = params.getFirst("label");
-//		int valuetype = Integer.parseInt(params.getFirst("valuetype"));
-//		double radiovalue = Double.parseDouble(params.getFirst("radiovalue"));
-//		double lat = Double.parseDouble(params.getFirst("lat"));
-//		double lon = Double.parseDouble(params.getFirst("lon"));
-//
-//		saveRadiation(radiation);
-//		StringBuffer buffer = new StringBuffer();
-//		appendRadiationToStringBuffer(buffer,radiation);
-//		return buffer.toString();
-//	}
-
-	private void saveRadiation(Radiation radiation) {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try{
-			pm.makePersistent(radiation);
-		}finally{
-			pm.close();
-		}
+		//TODO Remove hard coded resource path.
+		URI uri = uriInfo.getBaseUriBuilder().path("radiation/min/"+radiation.getId().toString()+".json").build();
+		return Response.created(uri).entity(radiation).build();
 	}
 
 	@PUT
 	@Path("min/{id}.json")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
-	public Radiation updateJsonRadiation(@PathParam("id") Long id, JAXBElement<Radiation> jaxbData){
+	public Response updateJsonRadiation(@PathParam("id") Long id, JAXBElement<Radiation> jaxbData){
+		checkLoggedIn();
 		Radiation target = jaxbData.getValue();
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Radiation origin = pm.getObjectById(Radiation.class, id);
-		if(origin == null) throw new NotFoundException("Id = " + id + " not found");
-		if(origin.equals(target)){
-			Response.notModified().build();
-			return origin;
-		}else{
-			target.setId(id);
-			try{
-				pm.makePersistent(target);
-			}finally{
-				pm.close();
-			}
-			return target;
-		}
+		Radiation origin = getOne(pm, id);
+		checkOwnedRadiation(origin);
+		target.setId(id);
+		saveRadiation(pm, target);
+		URI uri = uriInfo.getAbsolutePath();
+		return Response.created(uri).entity(target).build();
 	}
 
 	@DELETE
@@ -139,14 +120,51 @@ public final class RadiationResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
 	public Radiation removeRadiation(@PathParam("id") Long id){
+		checkLoggedIn();
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Radiation radiation = pm.getObjectById(Radiation.class, id);
-		if(radiation == null) throw new NotFoundException("Id = " + id + " not found");
+		Radiation radiation = getOne(pm, id);
+		checkOwnedRadiation(radiation);
 		try{
 			pm.deletePersistent(radiation);
 		}finally{
 			pm.close();
 		}
+		return radiation;
+	}
+
+	private void saveRadiation(Radiation radiation) {
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		saveRadiation(pm, radiation);
+	}
+
+	private void saveRadiation(PersistenceManager pm, Radiation radiation) {
+		System.out.println("saving!");
+		if(radiation.hasDulicated(pm)){
+			throw new WebApplicationException(Response.notModified().entity(radiation).build());
+		}
+		try{
+			pm.makePersistent(radiation);
+		}finally{
+			pm.close();
+		}
+	}
+
+	private void checkLoggedIn() {
+		if(!Authorization.isLoggedIn()){
+			String url = Authorization.getURL(uriInfo.getAbsolutePath().toString());
+			throw new WebApplicationException(Response.status(401).entity(url).build());
+		}
+	}
+
+	private void checkOwnedRadiation(Radiation radiation) {
+		if(!radiation.getEmail().equals(Authorization.getEmail())){
+			throw new WebApplicationException(403);
+		}
+	}
+
+	private Radiation getOne(PersistenceManager pm, Long id) {
+		Radiation radiation = pm.getObjectById(Radiation.class, id);
+		if(radiation == null) throw new NotFoundException("Id = " + id + " not found");
 		return radiation;
 	}
 
