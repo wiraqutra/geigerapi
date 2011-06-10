@@ -9,18 +9,18 @@ But CSV data format downloading  is also supported.
 = Rest Details =
 == JSON ==
 || || Method || Other Requirement || Response ||
-|| Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Added One Record ||
+|| Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Added one ||
 || Read || GET  /rest/{resource}/{data group}.json || - || All Records ||
-|| Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Updated One Record ||
-|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || Deleted One Record ||
+|| Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| Updated one ||
+|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || Deleted one ||
 
 == CSV ==
 
-|| || Method || Other Requirement ||
-|| Create || POST /rest/{resource}/{data group}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
-|| Read || GET /rest/{resource}/{data group}.csv || - ||
-|| Update || PUT /rest/{resource}/{data group}/{id}.csv || Request Header "Content-Type text/plain" and Request Body(Query String)||
-|| Delete || DELETE /rest/{resource}/{data group}/{id}.csv || - ||
+|| || Method || Other Requirement || Response ||
+|| Create || Not supported yet ! || - || - ||
+|| Read || GET /rest/{resource}/{data group}.csv || - || All Records ||
+|| Update || Not supported yet ! || - || - ||
+|| Delete ||  Not supported yet ! || - || - ||
 
 = Reference =
 
