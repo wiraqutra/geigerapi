@@ -13,7 +13,7 @@ But CSV data format downloading  is also supported.
 || Read All || GET  /rest/{resource}/{data group}.json || - || 200 || All Records ||
 || Read One || GET  /rest/{resource}/{data group}/{id}.json || - || 200 _(successfull)_ *or* 404 _(id not found)_ || One Record ||
 || Update || PUT  /rest/{resource}/{data group}/{id}.json || Request Header "Content-Type application/json" and Request Body(JSON Format) || 201 _(changed)_ *or* 304 _(all data is same)_ *or* 404 _(id not found)_ *or* 401 _(unauthorized)_ *or* 403 _(not owned)_|| Updated one ||
-|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || 200 _(deleted)_ *or* _(id not found)_ *or* 401 _(unauthorized)_ *or* 403 _(not owned)_|| Deleted one ||
+|| Delete || DELETE  /rest/{resource}/{data group}/{id}.json || - || 200 _(deleted)_ *or* 404 _(id not found)_ *or* 401 _(unauthorized)_ *or* 403 _(not owned)_|| Deleted one ||
 
 == CSV ==
 
