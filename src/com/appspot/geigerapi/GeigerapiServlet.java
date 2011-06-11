@@ -10,6 +10,8 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.servlet.http.*;
 
+import com.appspot.geigerapi.data.PMF;
+
 @SuppressWarnings("serial")
 public class GeigerapiServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
