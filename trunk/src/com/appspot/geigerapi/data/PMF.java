@@ -1,4 +1,4 @@
-package com.appspot.geigerapi;
+package com.appspot.geigerapi.data;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;

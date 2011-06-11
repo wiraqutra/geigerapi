@@ -1,13 +1,9 @@
 package com.appspot.geigerapi.resource;
 
 import java.net.URI;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
+
 import javax.jdo.annotations.Transactional;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,18 +20,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
 
-import com.appspot.geigerapi.PMF;
-import com.appspot.geigerapi.Radiation;
 import com.appspot.geigerapi.auth.Authorization;
-import com.sun.jersey.api.NotFoundException;
+import com.appspot.geigerapi.data.RadiationDao;
+import com.appspot.geigerapi.entity.Radiation;
 
 @Path("/radiation")
 public final class RadiationResource {
 	@Context
-	UriInfo uriInfo;
+	private UriInfo uriInfo;
 	
 	@Context
-	Request request;
+	private Request request;
+	
+	private RadiationDao radiationDao = RadiationDao.getInstance();
 	
 	public RadiationResource() {
 	}
@@ -53,26 +50,22 @@ public final class RadiationResource {
 	public String listAllByCsv() {
 		StringBuffer buffer = new StringBuffer();
 		for(Radiation radiation:getAll()){
-			appendRadiationToStringBuffer(buffer, radiation);
+			radiation.writeCsvTo(buffer);
 		}
 		return buffer.toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<Radiation> getAll() {
 		MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
 		String order = params.containsKey("order") ? params.getFirst("order") : "datetime";
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Query query = pm.newQuery(Radiation.class);
-		query.setOrdering(order);
-		return (List<Radiation>)query.execute();
+		return this.radiationDao.getAll(order);
 	}
 	
 	@GET
 	@Path("min/{id}.json")
 	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 	public Radiation listOneByJson(@PathParam("id") Long id){
-		return getOne(PMF.get().getPersistenceManager(),id);
+		return this.radiationDao.get(id);
 	}
 
 	@GET
@@ -80,8 +73,7 @@ public final class RadiationResource {
 	@Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
 	public String listOneByCsv(@PathParam("id") Long id) {
 		StringBuffer buffer = new StringBuffer();
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		appendRadiationToStringBuffer(buffer, getOne(pm,id));
+		this.radiationDao.get(id).writeCsvTo(buffer);
 		return buffer.toString();
 	}
 
@@ -93,7 +85,7 @@ public final class RadiationResource {
 	public Response addJsonRadiation(JAXBElement<Radiation> jaxbData){
 		checkLoggedIn();
 		Radiation radiation = jaxbData.getValue();
-		saveRadiation(radiation);
+		this.radiationDao.save(radiation);
 		//TODO Remove hard coded resource path.
 		URI uri = uriInfo.getBaseUriBuilder().path("radiation/min/"+radiation.getId().toString()+".json").build();
 		return Response.created(uri).entity(radiation).build();
@@ -106,11 +98,10 @@ public final class RadiationResource {
 	public Response updateJsonRadiation(@PathParam("id") Long id, JAXBElement<Radiation> jaxbData){
 		checkLoggedIn();
 		Radiation target = jaxbData.getValue();
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Radiation origin = getOne(pm, id);
-		checkOwnedRadiation(origin);
+		Radiation origin = this.radiationDao.get(id);
+		origin.checkOwned();
 		target.setId(id);
-		saveRadiation(pm, target);
+		this.radiationDao.save(target);
 		URI uri = uriInfo.getAbsolutePath();
 		return Response.created(uri).entity(target).build();
 	}
@@ -121,32 +112,7 @@ public final class RadiationResource {
 	@Transactional
 	public Radiation removeRadiation(@PathParam("id") Long id){
 		checkLoggedIn();
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Radiation radiation = getOne(pm, id);
-		checkOwnedRadiation(radiation);
-		try{
-			pm.deletePersistent(radiation);
-		}finally{
-			pm.close();
-		}
-		return radiation;
-	}
-
-	private void saveRadiation(Radiation radiation) {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		saveRadiation(pm, radiation);
-	}
-
-	private void saveRadiation(PersistenceManager pm, Radiation radiation) {
-		System.out.println("saving!");
-		if(radiation.hasDulicated(pm)){
-			throw new WebApplicationException(Response.notModified().entity(radiation).build());
-		}
-		try{
-			pm.makePersistent(radiation);
-		}finally{
-			pm.close();
-		}
+		return this.radiationDao.delete(id);
 	}
 
 	private void checkLoggedIn() {
@@ -156,32 +122,4 @@ public final class RadiationResource {
 		}
 	}
 
-	private void checkOwnedRadiation(Radiation radiation) {
-		if(!radiation.getEmail().equals(Authorization.getEmail())){
-			throw new WebApplicationException(403);
-		}
-	}
-
-	private Radiation getOne(PersistenceManager pm, Long id) {
-		Radiation radiation = pm.getObjectById(Radiation.class, id);
-		if(radiation == null) throw new NotFoundException("Id = " + id + " not found");
-		return radiation;
-	}
-
-	private void appendRadiationToStringBuffer(StringBuffer buffer,
-			Radiation radiation) {
-		buffer.append(Radiation.DATE_FORMAT.format(radiation.getDatetime()));
-		buffer.append(",");
-		buffer.append(radiation.getLabel());
-		buffer.append(",");
-		buffer.append((radiation.getValuetype()));
-		buffer.append(",");
-		buffer.append(radiation.getLat());
-		buffer.append(",");
-		buffer.append(radiation.getLon());
-		buffer.append(",");
-		buffer.append(radiation.getRadiovalue());
-		buffer.append("\r\n");
-	}
-	
 }
