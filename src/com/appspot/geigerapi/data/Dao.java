@@ -2,6 +2,7 @@ package com.appspot.geigerapi.data;
 
 import java.util.List;
 
+import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
@@ -20,7 +21,11 @@ public abstract class Dao<T> {
 	}
 
 	protected T get(PersistenceManager pm, Long id) {
-		T entity = (T) pm.getObjectById(this.clazz, id);
+		T entity = null;
+		try{
+			entity = (T) pm.getObjectById(this.clazz, id);
+		}catch(JDOObjectNotFoundException e){
+		}
 		if(entity == null) throw new NotFoundException("ID=" + id + " not found");
 		return entity;
 	}
