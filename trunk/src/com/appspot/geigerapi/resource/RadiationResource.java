@@ -22,6 +22,8 @@ import javax.xml.bind.JAXBElement;
 
 import com.appspot.geigerapi.auth.Authorization;
 import com.appspot.geigerapi.data.RadiationDao;
+import com.appspot.geigerapi.datagroup.IRadiationResponseBuilder;
+import com.appspot.geigerapi.datagroup.RadiationResponseBuilderFactory;
 import com.appspot.geigerapi.entity.Radiation;
 
 @Path("/radiation")
@@ -38,64 +40,49 @@ public final class RadiationResource {
 	}
 	
 	@GET
-	@Path("min.json")
-	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	public List<Radiation> listAllByJson(){
-		return getAll();
-	}
-
-	@GET
-	@Path("min.csv")
-	@Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
-	public String listAllByCsv() {
-		StringBuffer buffer = new StringBuffer();
-		for(Radiation radiation:getAll()){
-			radiation.writeCsvTo(buffer);
-		}
-		return buffer.toString();
-	}
-
-	private List<Radiation> getAll() {
+	@Path("{datagroup}.{ext}")
+	public Response listAll(
+			@PathParam("datagroup") String datagroup,
+			@PathParam("ext") String extension){
 		MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
 		String order = params.containsKey("order") ? params.getFirst("order") : "datetime";
-		return this.radiationDao.getAll(order);
+		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
+		List<Radiation> radiations = radiationDao.getAll(order);
+		return responseBuilder.getRadiationsResponse(radiations, extension);
 	}
+
+	@GET
+	@Path("{datagroup}/{id}.{ext}")
+	public Response listOne(@PathParam("id") Long id,
+			@PathParam("datagroup") String datagroup,
+			@PathParam("ext") String extension){
+		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
+		Radiation radiation = this.radiationDao.get(id);
+		return responseBuilder.getRadiationResponse(radiation, extension);
+	}
+
 	
-	@GET
-	@Path("min/{id}.json")
-	@Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-	public Radiation listOneByJson(@PathParam("id") Long id){
-		return this.radiationDao.get(id);
-	}
-
-	@GET
-	@Path("min/{id}.csv")
-	@Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
-	public String listOneByCsv(@PathParam("id") Long id) {
-		StringBuffer buffer = new StringBuffer();
-		this.radiationDao.get(id).writeCsvTo(buffer);
-		return buffer.toString();
-	}
-
-
 	@POST
-	@Path("min.json")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{datagroup}.{ext}")
 	@Transactional
-	public Response addJsonRadiation(JAXBElement<Radiation> jaxbData){
+	public Response addRadiation(JAXBElement<Radiation> jaxbData,
+			@PathParam("datagroup") String datagroup,
+			@PathParam("ext") String extension){
 		checkLoggedIn();
 		Radiation radiation = jaxbData.getValue();
 		this.radiationDao.save(radiation);
 		//TODO Remove hard coded resource path.
-		URI uri = uriInfo.getBaseUriBuilder().path("radiation/min/"+radiation.getId().toString()+".json").build();
-		return Response.created(uri).entity(radiation).build();
+		URI uri = uriInfo.getBaseUriBuilder().path("radiation/"+datagroup+"/"+radiation.getId().toString()+"."+extension).build();
+		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
+		return responseBuilder.getRadiationCreatedResponse(radiation,extension,uri);
 	}
 
 	@PUT
-	@Path("min/{id}.json")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{datagroup}/{id}.{ext}")
 	@Transactional
-	public Response updateJsonRadiation(@PathParam("id") Long id, JAXBElement<Radiation> jaxbData){
+	public Response updateRadiation(@PathParam("id") Long id, JAXBElement<Radiation> jaxbData,
+		@PathParam("datagroup") String datagroup,
+		@PathParam("ext") String extension){
 		checkLoggedIn();
 		Radiation target = jaxbData.getValue();
 		Radiation origin = this.radiationDao.get(id);
@@ -103,16 +90,21 @@ public final class RadiationResource {
 		target.setId(id);
 		this.radiationDao.save(target);
 		URI uri = uriInfo.getAbsolutePath();
-		return Response.created(uri).entity(target).build();
+		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
+		return responseBuilder.getRadiationCreatedResponse(target,extension,uri);
 	}
 
 	@DELETE
-	@Path("min/{id}.json")
+	@Path("{datagroup}/{id}.{ext}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
-	public Radiation removeRadiation(@PathParam("id") Long id){
+	public Response removeRadiation(@PathParam("id") Long id,
+		@PathParam("datagroup") String datagroup,
+		@PathParam("ext") String extension){
 		checkLoggedIn();
-		return this.radiationDao.delete(id);
+		Radiation radiation = this.radiationDao.delete(id);
+		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
+		return responseBuilder.getRadiationResponse(radiation, extension);
 	}
 
 	private void checkLoggedIn() {
