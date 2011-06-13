@@ -6,7 +6,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import com.appspot.geigerapi.entity.Radiation;
-import com.appspot.geigerapi.model.OutputDataModel;
 
 public interface IRadiationResponseBuilder {
 	
