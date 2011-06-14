@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBElement;
 import com.appspot.geigerapi.auth.Authorization;
 import com.appspot.geigerapi.data.RadiationDao;
 import com.appspot.geigerapi.entity.Radiation;
+import com.appspot.geigerapi.input.RadiationInputModel;
 import com.appspot.geigerapi.response.IRadiationResponseBuilder;
 import com.appspot.geigerapi.response.RadiationResponseBuilderFactory;
 
@@ -65,11 +66,11 @@ public final class RadiationResource {
 	@POST
 	@Path("{datagroup}.{ext}")
 	@Transactional
-	public Response addRadiation(JAXBElement<Radiation> jaxbData,
+	public Response addRadiation(JAXBElement<RadiationInputModel> jaxbData,
 			@PathParam("datagroup") String datagroup,
 			@PathParam("ext") String extension){
 		checkLoggedIn();
-		Radiation radiation = jaxbData.getValue();
+		Radiation radiation = jaxbData.getValue().create();
 		this.radiationDao.save(radiation);
 		//TODO Remove hard coded resource path.
 		URI uri = uriInfo.getBaseUriBuilder().path("radiation/"+datagroup+"/"+radiation.getId().toString()+"."+extension).build();
@@ -80,11 +81,11 @@ public final class RadiationResource {
 	@PUT
 	@Path("{datagroup}/{id}.{ext}")
 	@Transactional
-	public Response updateRadiation(@PathParam("id") Long id, JAXBElement<Radiation> jaxbData,
+	public Response updateRadiation(@PathParam("id") Long id, JAXBElement<RadiationInputModel> jaxbData,
 		@PathParam("datagroup") String datagroup,
 		@PathParam("ext") String extension){
 		checkLoggedIn();
-		Radiation target = jaxbData.getValue();
+		Radiation target = jaxbData.getValue().create();
 		Radiation origin = this.radiationDao.get(id);
 		origin.checkOwned();
 		target.setId(id);

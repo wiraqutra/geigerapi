@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.appspot.geigerapi.entity.Radiation;
 
 @XmlRootElement(name="radiation")
-public final class MinRadiationDatagroup implements DataGroup {
+public final class NotesRadiationDatagroup implements DataGroup {
 		private Long id;
 		private String datetime;
 		private String label;
@@ -13,11 +13,15 @@ public final class MinRadiationDatagroup implements DataGroup {
 		private double radiovalue;
 		private double lat;
 		private double lon;
+		//notes datagroup
+		private String imageurl;
+		private String notes;
+		private String tags;
 		
-		public MinRadiationDatagroup(){
+		public NotesRadiationDatagroup(){
 		}
 		
-		public MinRadiationDatagroup(Radiation radiation) {
+		public NotesRadiationDatagroup(Radiation radiation) {
 			super();
 			this.id = radiation.getId();
 			this.datetime = Radiation.DATE_FORMAT.format(radiation.getDatetime());
@@ -26,6 +30,10 @@ public final class MinRadiationDatagroup implements DataGroup {
 			this.radiovalue = radiation.getRadiovalue();
 			this.lat = radiation.getLat();
 			this.lon = radiation.getLon();
+			//notes datagroup
+			this.setImageurl(radiation.getImageurl());
+			this.setNotes(radiation.getNotes());
+			this.setTags(radiation.getTags());
 		}
 
 		public Long getId() {
@@ -84,6 +92,30 @@ public final class MinRadiationDatagroup implements DataGroup {
 			this.lon = longtitude;
 		}
 				
+		public String getImageurl() {
+			return imageurl;
+		}
+
+		public void setImageurl(String imageurl) {
+			this.imageurl = imageurl;
+		}
+
+		public String getNotes() {
+			return notes;
+		}
+
+		public void setNotes(String notes) {
+			this.notes = notes;
+		}
+
+		public String getTags() {
+			return tags;
+		}
+
+		public void setTags(String tags) {
+			this.tags = tags;
+		}
+
 		public void writeCsvTo(StringBuffer buffer) {
 			buffer.append(getDatetime());
 			buffer.append(",");
@@ -96,6 +128,15 @@ public final class MinRadiationDatagroup implements DataGroup {
 			buffer.append(getLon());
 			buffer.append(",");
 			buffer.append(getRadiovalue());
+			buffer.append(",");
+
+			//notes datagroup
+			if(this.getImageurl() != null) buffer.append(this.getImageurl());
+			buffer.append(",");
+			if(this.getNotes() != null) buffer.append(this.getNotes());
+			buffer.append(",");
+			if(this.getTags() != null) buffer.append(this.getTags());
+
 			buffer.append("\r\n");
 		}
 		
