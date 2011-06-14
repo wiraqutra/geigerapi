@@ -1,4 +1,4 @@
-package com.appspot.geigerapi.datagroup;
+package com.appspot.geigerapi.response;
 
 import java.net.URI;
 import java.util.List;

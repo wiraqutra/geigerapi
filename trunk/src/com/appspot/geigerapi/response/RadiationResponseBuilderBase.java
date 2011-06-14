@@ -1,4 +1,4 @@
-package com.appspot.geigerapi.datagroup;
+package com.appspot.geigerapi.response;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -9,10 +9,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Variant;
 
+import com.appspot.geigerapi.datagroup.DataGroup;
 import com.appspot.geigerapi.entity.Radiation;
-import com.appspot.geigerapi.model.OutputDataModel;
 
-public abstract class RadiationResponseBuilderBase<T extends OutputDataModel> implements IRadiationResponseBuilder{
+public abstract class RadiationResponseBuilderBase<T extends DataGroup> implements IRadiationResponseBuilder{
 	
 	public Response getRadiationsResponse(List<Radiation> radiations,
 			String extension) {
@@ -22,7 +22,7 @@ public abstract class RadiationResponseBuilderBase<T extends OutputDataModel> im
 		}
 		if(extension.equalsIgnoreCase("csv")){
 			StringBuffer buffer = new StringBuffer();
-			for(OutputDataModel model:models){
+			for(DataGroup model:models){
 				model.writeCsvTo(buffer);
 			}
 			return Response.ok(buffer.toString(),MediaType.TEXT_PLAIN).build();

@@ -22,9 +22,9 @@ import javax.xml.bind.JAXBElement;
 
 import com.appspot.geigerapi.auth.Authorization;
 import com.appspot.geigerapi.data.RadiationDao;
-import com.appspot.geigerapi.datagroup.IRadiationResponseBuilder;
-import com.appspot.geigerapi.datagroup.RadiationResponseBuilderFactory;
 import com.appspot.geigerapi.entity.Radiation;
+import com.appspot.geigerapi.response.IRadiationResponseBuilder;
+import com.appspot.geigerapi.response.RadiationResponseBuilderFactory;
 
 @Path("/radiation")
 public final class RadiationResource {
