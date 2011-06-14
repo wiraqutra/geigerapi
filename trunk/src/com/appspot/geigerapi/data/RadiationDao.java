@@ -28,7 +28,7 @@ public final class RadiationDao extends Dao<Radiation> {
 	@Override
 	protected void save(PersistenceManager pm, Radiation radiation) {
 		if(radiation.hasDulicated(pm)){
-			throw new WebApplicationException(Response.notModified().entity(radiation).build());
+			throw new WebApplicationException(Response.notModified().build());
 		}
 		super.save(pm, radiation);
 	}
