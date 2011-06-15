@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.appspot.geigerapi.entity.Radiation;
 
 @XmlRootElement(name="radiation")
-public final class MinRadiationDatagroup implements DataGroup {
+public class MinRadiationDatagroup implements DataGroup {
 		private Long id;
 		private String datetime;
 		private String label;
@@ -85,6 +85,11 @@ public final class MinRadiationDatagroup implements DataGroup {
 		}
 				
 		public void writeCsvTo(StringBuffer buffer) {
+			writeCsvOneLineTo(buffer);
+			buffer.append("\r\n");
+		}
+
+		protected void writeCsvOneLineTo(StringBuffer buffer) {
 			buffer.append(getDatetime());
 			buffer.append(",");
 			buffer.append(getLabel());
@@ -96,7 +101,6 @@ public final class MinRadiationDatagroup implements DataGroup {
 			buffer.append(getLon());
 			buffer.append(",");
 			buffer.append(getRadiovalue());
-			buffer.append("\r\n");
 		}
 		
 }
