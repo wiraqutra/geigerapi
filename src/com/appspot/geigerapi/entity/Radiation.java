@@ -30,6 +30,8 @@ public final class Radiation {
 
 		//min datagroup
 		@Persistent
+		private Boolean hidden = false;
+		@Persistent
 		private Date datetime;
 		@Persistent
 		private String label;
@@ -116,6 +118,15 @@ public final class Radiation {
 
 		public void setEmail(String email) {
 			this.email = email;
+		}
+
+		public Boolean getHidden() {
+			if(this.hidden == null) return Boolean.FALSE;
+			return hidden;
+		}
+
+		public void setHidden(Boolean hidden) {
+			this.hidden = hidden;
 		}
 
 		public String getLabel() {
@@ -328,10 +339,8 @@ public final class Radiation {
 			return !radiations.isEmpty();
 		}
 
-		public void checkOwned() {
-			if(!getEmail().equals(Authorization.getEmail())){
-				throw new WebApplicationException(403);
-			}
+		public boolean isOwned(){
+			return getEmail().equals(Authorization.getEmail());
 		}
 
 		/* (non-Javadoc)

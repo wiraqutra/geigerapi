@@ -12,6 +12,7 @@ import com.appspot.geigerapi.entity.Radiation;
 
 @XmlRootElement
 public final class RadiationInputModel {
+	private Boolean hidden;
 	private String datetime;
 	private String label;
 	private Integer valuetype;
@@ -43,6 +44,14 @@ public final class RadiationInputModel {
 	private String imageurl;
 	private String notes;
 	private String tags;
+
+	public Boolean getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
+	}
 
 	public String getDatetime() {
 		return datetime;
@@ -250,7 +259,12 @@ public final class RadiationInputModel {
 		if(getRadiovalue() == null) throwUnprocessableEntity("Require field: radiovalue");
 		if(getLat() == null) throwUnprocessableEntity("Require field: lat");
 		if(getLon() == null) throwUnprocessableEntity("Require field: lon");
+		
 		Radiation radiation = new Radiation();
+		if(this.getHidden() != null){
+			radiation.setHidden(this.getHidden());
+		}
+		
 		if(getDatetime() == null){
 			radiation.setDatetime(new Date());
 		}else{

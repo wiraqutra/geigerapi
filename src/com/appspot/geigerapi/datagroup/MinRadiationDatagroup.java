@@ -7,6 +7,7 @@ import com.appspot.geigerapi.entity.Radiation;
 @XmlRootElement(name="radiation")
 public class MinRadiationDatagroup implements DataGroup {
 		private Long id;
+		private boolean hidden;
 		private String datetime;
 		private String label;
 		private int valuetype;
@@ -20,6 +21,7 @@ public class MinRadiationDatagroup implements DataGroup {
 		public MinRadiationDatagroup(Radiation radiation) {
 			super();
 			this.id = radiation.getId();
+			this.hidden = radiation.getHidden();
 			this.datetime = Radiation.DATE_FORMAT.format(radiation.getDatetime());
 			this.label = radiation.getLabel();
 			this.valuetype = radiation.getValuetype();
@@ -34,6 +36,14 @@ public class MinRadiationDatagroup implements DataGroup {
 
 		public void setId(Long id) {
 			this.id = id;
+		}
+
+		public void setHidden(boolean hidden) {
+			this.hidden = hidden;
+		}
+
+		public boolean isHidden() {
+			return hidden;
 		}
 
 		public String getLabel() {
@@ -90,6 +100,10 @@ public class MinRadiationDatagroup implements DataGroup {
 		}
 
 		protected void writeCsvOneLineTo(StringBuffer buffer) {
+			buffer.append(getId());
+			buffer.append(",");
+			buffer.append(isHidden());
+			buffer.append(",");
 			buffer.append(getDatetime());
 			buffer.append(",");
 			buffer.append(getLabel());
