@@ -48,7 +48,7 @@ public final class RadiationResource {
 		MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
 		String order = params.containsKey("order") ? params.getFirst("order") : "datetime";
 		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
-		List<Radiation> radiations = radiationDao.getAll(order);
+		List<Radiation> radiations = radiationDao.getAllowedAll(order);
 		return responseBuilder.getRadiationsResponse(radiations, extension);
 	}
 
@@ -57,8 +57,13 @@ public final class RadiationResource {
 	public Response listOne(@PathParam("id") Long id,
 			@PathParam("datagroup") String datagroup,
 			@PathParam("ext") String extension){
-		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
 		Radiation radiation = this.radiationDao.get(id);
+		if(radiation.getHidden()){
+			if(!Authorization.isLoggedIn() || !radiation.isOwned()){
+				throw new WebApplicationException(403);
+			}
+		}
+		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
 		return responseBuilder.getRadiationResponse(radiation, extension);
 	}
 
@@ -69,7 +74,7 @@ public final class RadiationResource {
 	public Response addRadiation(JAXBElement<RadiationInputModel> jaxbData,
 			@PathParam("datagroup") String datagroup,
 			@PathParam("ext") String extension){
-		checkLoggedIn();
+		if(!Authorization.isLoggedIn()) throwUnauthorized();
 		Radiation radiation = jaxbData.getValue().create();
 		this.radiationDao.save(radiation);
 		//TODO Remove hard coded resource path.
@@ -84,10 +89,12 @@ public final class RadiationResource {
 	public Response updateRadiation(@PathParam("id") Long id, JAXBElement<RadiationInputModel> jaxbData,
 		@PathParam("datagroup") String datagroup,
 		@PathParam("ext") String extension){
-		checkLoggedIn();
+		if(!Authorization.isLoggedIn()) throwUnauthorized();
 		Radiation target = jaxbData.getValue().create();
 		Radiation origin = this.radiationDao.get(id);
-		origin.checkOwned();
+		if(!origin.isOwned()){
+			throw new WebApplicationException(403);
+		}
 		target.setId(id);
 		this.radiationDao.save(target);
 		URI uri = uriInfo.getAbsolutePath();
@@ -102,17 +109,15 @@ public final class RadiationResource {
 	public Response removeRadiation(@PathParam("id") Long id,
 		@PathParam("datagroup") String datagroup,
 		@PathParam("ext") String extension){
-		checkLoggedIn();
+		if(!Authorization.isLoggedIn()) throwUnauthorized();
 		Radiation radiation = this.radiationDao.delete(id);
 		IRadiationResponseBuilder responseBuilder = RadiationResponseBuilderFactory.get(datagroup);
 		return responseBuilder.getRadiationResponse(radiation, extension);
 	}
 
-	private void checkLoggedIn() {
-		if(!Authorization.isLoggedIn()){
-			String url = Authorization.getURL(uriInfo.getAbsolutePath().toString());
-			throw new WebApplicationException(Response.status(401).entity(url).build());
-		}
+	private void throwUnauthorized() {
+		String url = Authorization.getURL(uriInfo.getAbsolutePath().toString());
+		throw new WebApplicationException(Response.status(401).entity(url).build());
 	}
 
 }
