@@ -7,8 +7,9 @@ This project offers RESTful API. The data format is JSON.
 But CSV data format downloading  is also supported.
 
 = Rest Details =
-"resource" is now only "radiation".
-"data group" is "min", "forecast", "detail","notes" or "full".
+*{resource}* is now only "_radiation_".
+
+*{data group}* is "_min_", "_forecast_", "_detail_","_notes_" or "_full_".
 
 == JSON ==
 || || Method || Other Requirement || Response Code || Response Body ||
