@@ -7,6 +7,9 @@ This project offers RESTful API. The data format is JSON.
 But CSV data format downloading  is also supported.
 
 = Rest Details =
+"resource" is now only "radiation".
+"data group" is "min", "forecast", "detail","notes","full"
+
 == JSON ==
 || || Method || Other Requirement || Response Code || Response Body ||
 || Create || POST /rest/{resource}/{data group}.json || Request Header "Content-Type application/json" and Request Body(JSON Format)|| 201 _(created)_ *or* 304 _(duplicated data found)_ *or* 401 _(unauthorized)_|| Created One ||
