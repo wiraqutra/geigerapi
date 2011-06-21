@@ -50,6 +50,8 @@ But CSV data format downloading  is also supported.
 || Update || Not supported yet ! || - || - || - ||
 || Delete ||  Not supported yet ! || - || - || - ||
 
+= Data Schema =
+
 = Reference =
 
 https://docs.google.com/present/edit?id=0Ad3729ke2xCFZGdqMzgzdmtfMTk4Zm12d2Y1Y2Q&hl=ja
