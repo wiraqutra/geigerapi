@@ -17,11 +17,13 @@ But CSV data format downloading  is also supported.
 
 == CSV ==
 
-|| || Method || Other Requirement || Response ||
-|| Create || Not supported yet ! || - || - ||
-|| Read || GET /rest/{resource}/{data group}.csv || - || All Records ||
-|| Update || Not supported yet ! || - || - ||
-|| Delete ||  Not supported yet ! || - || - ||
+|| || Method || Other Requirement || Response Code || Response Body ||
+|| Create || Not supported yet ! || - || - || - ||
+|| Read All || GET  /rest/{resource}/{data group}.json || - || 200 || All Records ||
+|| Read One || GET  /rest/{resource}/{data group}/{id}.json || - || 200 _(successfull)_ *or* 404 _(id not found)_ || One Record ||
+
+|| Update || Not supported yet ! || - || - || - ||
+|| Delete ||  Not supported yet ! || - || - || - ||
 
 = Reference =
 
