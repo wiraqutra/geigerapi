@@ -1,6 +1,7 @@
 package com.appspot.geigerapi.resource;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.jdo.annotations.Transactional;
@@ -117,7 +118,13 @@ public final class RadiationResource {
 
 	private void throwUnauthorized() {
 		String url = Authorization.getURL(uriInfo.getAbsolutePath().toString());
-		throw new WebApplicationException(Response.status(401).entity(url).build());
+		Response response;
+		try {
+			response = Response.temporaryRedirect(new URI(url)).build();
+		} catch (URISyntaxException e) {
+			throw new WebApplicationException(Response.status(401).entity(url).build());
+		}
+		throw new WebApplicationException(response);
 	}
 
 }
